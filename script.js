@@ -1,4 +1,5 @@
-const tasks = [
+// Dummy Data
+let tasks = [
   { time: "9:00–10:15am", task: "Library – Revise old topics", done: false },
   { time: "10:30–12:00pm", task: "Ward Duty", done: false },
   { time: "12:00–1:00pm", task: "Class", done: false },
@@ -9,22 +10,25 @@ const tasks = [
   { time: "9:30–10:30pm", task: "Flashcards / Light revision", done: false }
 ];
 
-const subjects = [
-  { name: "Pathology", done: false },
-  { name: "Pharmacology", done: false },
-  { name: "Microbiology", done: false }
+let subjects = [
+  { name: "Pathology", topics: [], done: false },
+  { name: "Pharmacology", topics: [], done: false },
+  { name: "Microbiology", topics: [], done: false }
 ];
 
-const weeklyGoals = [];
+let weeklyGoals = [];
 
-const taskList = document.querySelector(".tasks");
-const subjectList = document.querySelector(".subjects");
+// DOM Elements
+const taskList = document.querySelector(".tasks-list");
+const subjectList = document.querySelector(".subject-list");
 const goalList = document.querySelector(".goals");
-
+const newSubjectInput = document.querySelector("#newSubject");
+const addSubjectBtn = document.querySelector("#addSubject");
 const newGoalInput = document.querySelector("#newGoal");
-const addGoalButton = document.querySelector("#addGoal");
+const addGoalBtn = document.querySelector("#addGoal");
 
-function updateTasks() {
+// Update Task List
+function updateTaskList() {
   taskList.innerHTML = "";
   tasks.forEach((task, index) => {
     const taskItem = document.createElement("li");
@@ -37,18 +41,64 @@ function updateTasks() {
   });
 }
 
+// Update Subjects
 function updateSubjects() {
   subjectList.innerHTML = "";
   subjects.forEach((subject, index) => {
     const subjectItem = document.createElement("li");
     subjectItem.innerHTML = `
       <span>${subject.name}</span>
-      <input type="checkbox" ${subject.done ? "checked" : ""} onchange="toggleSubject(${index})">
+      <button onclick="addTopic(${index})">Add Topic</button>
+      <input type="text" placeholder="Topic Name" id="topicInput${index}" style="display:none;">
+      <ul>
+        ${subject.topics.map(topic => `<li>${topic}</li>`).join("")}
+      </ul>
     `;
     subjectList.appendChild(subjectItem);
   });
 }
 
+// Add New Subject
+function addSubject() {
+  const newSubject = newSubjectInput.value.trim();
+  if (newSubject) {
+    subjects.push({ name: newSubject, topics: [], done: false });
+    newSubjectInput.value = "";
+    updateSubjects();
+  }
+}
+
+// Toggle Task
+function toggleTask(index) {
+  tasks[index].done = !tasks[index].done;
+  updateTaskList();
+}
+
+// Add Topic to Subject
+function addTopic(index) {
+  const topicInput = document.querySelector(`#topicInput${index}`);
+  topicInput.style.display = "inline";
+  topicInput.focus();
+  topicInput.addEventListener("blur", function() {
+    const topic = topicInput.value.trim();
+    if (topic) {
+      subjects[index].topics.push(topic);
+      updateSubjects();
+    }
+  });
+}
+
+// Add Weekly Goal
+function addGoal() {
+  const newGoal = newGoalInput.value.trim();
+  if (newGoal) {
+    weeklyGoals.push(newGoal);
+    newGoalInput.value = "";
+    updateGoals();
+  }
+}
+
+// Update Weekly Goals
 function updateGoals() {
   goalList.innerHTML = "";
   weeklyGoals.forEach(goal => {
@@ -58,26 +108,11 @@ function updateGoals() {
   });
 }
 
-function toggleTask(index) {
-  tasks[index].done = !tasks[index].done;
-  updateTasks();
-}
-
-function toggleSubject(index) {
-  subjects[index].done = !subjects[index].done;
-  updateSubjects();
-}
-
-addGoalButton.addEventListener("click", () => {
-  const newGoal = newGoalInput.value.trim();
-  if (newGoal) {
-    weeklyGoals.push(newGoal);
-    newGoalInput.value = "";
-    updateGoals();
-  }
-});
-
-// Initial Update
-updateTasks();
+// Initial Calls
+updateTaskList();
 updateSubjects();
 updateGoals();
+
+// Event Listeners
+addSubjectBtn.addEventListener("click", addSubject);
+addGoalBtn.addEventListener("click", addGoal);
