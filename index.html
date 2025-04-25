@@ -8,27 +8,48 @@
 </head>
 <body>
   <div class="container">
-    <h1>Daily Tracker</h1>
-    <div class="tasks">
-      <h2>Daily Tasks</h2>
-      <!-- Tasks will be dynamically inserted here -->
-    </div>
+    <nav>
+      <ul>
+        <li><a href="#tasks">Daily Tasks</a></li>
+        <li><a href="#study">Study Tracker</a></li>
+        <li><a href="#goals">Weekly Goals</a></li>
+        <li><a href="#gym">Fitness</a></li>
+      </ul>
+    </nav>
 
-    <div class="subjects">
-      <h2>Study Subjects</h2>
-      <!-- Subjects will be dynamically inserted here -->
-    </div>
+    <section id="tasks" class="section">
+      <h1>Daily Tasks</h1>
+      <div class="tasks-list">
+        <!-- Tasks will dynamically appear here -->
+      </div>
+    </section>
 
-    <div class="goal-section">
-      <h2>Weekly Goals</h2>
+    <section id="study" class="section">
+      <h1>Study Tracker</h1>
+      <div class="subject-list">
+        <!-- Subjects will dynamically appear here -->
+      </div>
+      <input type="text" id="newSubject" placeholder="Add new subject" />
+      <button id="addSubject">Add Subject</button>
+    </section>
+
+    <section id="goals" class="section">
+      <h1>Weekly Goals</h1>
       <ul class="goals">
         <!-- Weekly goals will be added here -->
       </ul>
-      <input type="text" id="newGoal" placeholder="Add a weekly goal">
+      <input type="text" id="newGoal" placeholder="Add a weekly goal" />
       <button id="addGoal">Add Goal</button>
-    </div>
+    </section>
 
-    <script src="script.js"></script>
+    <section id="gym" class="section">
+      <h1>Fitness Tracker</h1>
+      <div class="gym-log">
+        <!-- Gym log will be added here -->
+      </div>
+    </section>
   </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
