@@ -1,55 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Med Student Tracker</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Productivity Hub</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="container">
-    <nav>
+  <header>
+    <h1>MBBS Productivity Dashboard</h1>
+  </header>
+  <main>
+    <section class="schedule">
+      <h2>Daily Schedule</h2>
+      <div id="schedule-list"></div>
+      <button onclick="addScheduleItem()">+ Add Task</button>
+    </section>
+    <section class="tracker">
+      <h2>Habit Tracker</h2>
       <ul>
-        <li><a href="#tasks">Daily Tasks</a></li>
-        <li><a href="#study">Study Tracker</a></li>
-        <li><a href="#goals">Weekly Goals</a></li>
-        <li><a href="#gym">Fitness</a></li>
+        <li><input type="checkbox" /> Gym</li>
+        <li><input type="checkbox" /> Study</li>
+        <li><input type="checkbox" /> Anki Review</li>
+        <li><input type="checkbox" /> Novel Reading</li>
       </ul>
-    </nav>
-
-    <section id="tasks" class="section">
-      <h1>Daily Tasks</h1>
-      <div class="tasks-list">
-        <!-- Tasks will dynamically appear here -->
-      </div>
     </section>
-
-    <section id="study" class="section">
-      <h1>Study Tracker</h1>
-      <div class="subject-list">
-        <!-- Subjects will dynamically appear here -->
-      </div>
-      <input type="text" id="newSubject" placeholder="Add new subject" />
-      <button id="addSubject">Add Subject</button>
-    </section>
-
-    <section id="goals" class="section">
-      <h1>Weekly Goals</h1>
-      <ul class="goals">
-        <!-- Weekly goals will be added here -->
-      </ul>
-      <input type="text" id="newGoal" placeholder="Add a weekly goal" />
-      <button id="addGoal">Add Goal</button>
-    </section>
-
-    <section id="gym" class="section">
-      <h1>Fitness Tracker</h1>
-      <div class="gym-log">
-        <!-- Gym log will be added here -->
-      </div>
-    </section>
-  </div>
-
+  </main>
   <script src="script.js"></script>
 </body>
 </html>
