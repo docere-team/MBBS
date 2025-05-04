@@ -3,29 +3,40 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Productivity Hub</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>MBBS Productivity Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header>
-    <h1>MBBS Productivity Dashboard</h1>
-  </header>
-  <main>
-    <section class="schedule">
-      <h2>Daily Schedule</h2>
-      <div id="schedule-list"></div>
-      <button onclick="addScheduleItem()">+ Add Task</button>
-    </section>
-    <section class="tracker">
-      <h2>Habit Tracker</h2>
-      <ul>
-        <li><input type="checkbox" /> Gym</li>
-        <li><input type="checkbox" /> Study</li>
-        <li><input type="checkbox" /> Anki Review</li>
-        <li><input type="checkbox" /> Novel Reading</li>
-      </ul>
-    </section>
-  </main>
+  <nav class="navbar">
+    <h1>Aftab's Dashboard</h1>
+    <ul>
+      <li><a href="#schedule">Schedule</a></li>
+      <li><a href="#habits">Tracker</a></li>
+      <li><a href="#motivation">Motivation</a></li>
+    </ul>
+  </nav>
+
+  <section id="schedule" class="card">
+    <h2>Daily Schedule</h2>
+    <input type="text" id="taskInput" placeholder="Enter task..." />
+    <button onclick="addTask()">+ Add Task</button>
+    <ul id="taskList"></ul>
+  </section>
+
+  <section id="habits" class="card">
+    <h2>Habit Tracker</h2>
+    <label><input type="checkbox" class="habit-check"> Gym</label><br>
+    <label><input type="checkbox" class="habit-check"> Study</label><br>
+    <label><input type="checkbox" class="habit-check"> Anki Review</label><br>
+    <label><input type="checkbox" class="habit-check"> Novel Reading</label>
+  </section>
+
+  <section id="motivation" class="card">
+    <h2>Need a Boost?</h2>
+    <button onclick="showQuote()">Show Motivation</button>
+    <p id="quoteBox"></p>
+  </section>
+
   <script src="script.js"></script>
 </body>
 </html>
