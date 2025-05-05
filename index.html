@@ -1,42 +1,222 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MBBS Productivity Dashboard</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weight Gain, Muscle Building & Skin Care Plan</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #3498db;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        main {
+            margin: 20px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #3498db;
+        }
+        h3 {
+            color: #2c3e50;
+        }
+        .plan-section {
+            margin-bottom: 20px;
+        }
+        .plan-section ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .plan-section li {
+            margin-bottom: 10px;
+        }
+        .accordion {
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+            padding: 10px;
+            width: 100%;
+            text-align: left;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+        }
+        .accordion:after {
+            content: ' ▼';
+        }
+        .active:after {
+            content: ' ▲';
+        }
+        .panel {
+            padding: 0 18px;
+            display: none;
+            overflow: hidden;
+            background-color: #f1f1f1;
+            margin-bottom: 15px;
+        }
+        footer {
+            background-color: #3498db;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+        .progress-container {
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 13px;
+            margin-bottom: 20px;
+        }
+        .progress-bar {
+            height: 20px;
+            width: 0;
+            background-color: #3498db;
+            border-radius: 13px;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+        }
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            grid-gap: 5px;
+            margin-bottom: 20px;
+        }
+        .calendar div {
+            padding: 10px;
+            background-color: #3498db;
+            color: white;
+            text-align: center;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .calendar div:hover {
+            background-color: #2980b9;
+        }
+        .active-day {
+            background-color: #2ecc71;
+        }
+    </style>
 </head>
 <body>
-  <nav class="navbar">
-    <h1>Aftab's Dashboard</h1>
-    <ul>
-      <li><a href="#schedule">Schedule</a></li>
-      <li><a href="#habits">Tracker</a></li>
-      <li><a href="#motivation">Motivation</a></li>
-    </ul>
-  </nav>
+    <header>
+        <h1>Personalized Weight Gain, Muscle Building & Skin Care Plan</h1>
+    </header>
+    
+    <main>
+        <section class="plan-section">
+            <h2>Nutrition Plan</h2>
+            <button class="accordion">Expand Nutrition Plan</button>
+            <div class="panel">
+                <ul>
+                    <li><strong>Morning (7-8 AM):</strong> 4 boiled eggs or omelette, 2 whole wheat bread slices or paratha with ghee, 1 glass milk with soaked almonds & raisins</li>
+                    <li><strong>Mid-Morning Snack (10-11 AM):</strong> Banana + peanut butter smoothie, Handful of walnuts or dry fruits</li>
+                    <li><strong>Lunch (1-2 PM):</strong> 2-3 rotis or rice, Paneer/chicken/fish, Dal + veggies, Curd</li>
+                    <li><strong>Evening Snack (5-6 PM):</strong> Protein shake or boiled eggs, Roasted chana, peanuts, or sprouts</li>
+                    <li><strong>Dinner (8-9 PM):</strong> Rice + chicken/fish curry or dal, Veggies, Salad with olive oil or flaxseeds</li>
+                    <li><strong>Before Bed:</strong> 1 glass warm milk with turmeric, 1 banana or soaked almonds</li>
+                </ul>
+            </div>
+        </section>
 
-  <section id="schedule" class="card">
-    <h2>Daily Schedule</h2>
-    <input type="text" id="taskInput" placeholder="Enter task..." />
-    <button onclick="addTask()">+ Add Task</button>
-    <ul id="taskList"></ul>
-  </section>
+        <section class="plan-section">
+            <h2>Workout Plan (6 Days a Week)</h2>
+            <button class="accordion">Expand Workout Plan</button>
+            <div class="panel">
+                <ul>
+                    <li><strong>Day 1:</strong> Chest + Triceps</li>
+                    <li><strong>Day 2:</strong> Back + Biceps</li>
+                    <li><strong>Day 3:</strong> Legs</li>
+                    <li><strong>Day 4:</strong> Shoulders + Core</li>
+                    <li><strong>Day 5:</strong> Full-body + Cardio</li>
+                    <li><strong>Day 6:</strong> Rest or light stretching</li>
+                </ul>
+                <p><strong>Tip:</strong> Start with bodyweight exercises and progress to weights.</p>
+            </div>
+        </section>
 
-  <section id="habits" class="card">
-    <h2>Habit Tracker</h2>
-    <label><input type="checkbox" class="habit-check"> Gym</label><br>
-    <label><input type="checkbox" class="habit-check"> Study</label><br>
-    <label><input type="checkbox" class="habit-check"> Anki Review</label><br>
-    <label><input type="checkbox" class="habit-check"> Novel Reading</label>
-  </section>
+        <section class="plan-section">
+            <h2>Skin Health & Care Tips</h2>
+            <button class="accordion">Expand Skin Care Tips</button>
+            <div class="panel">
+                <ul>
+                    <li>Drink 3-4 liters of water daily</li>
+                    <li>Eat Vitamin C-rich fruits (orange, amla, papaya)</li>
+                    <li>Use sunscreen daily to avoid darkening</li>
+                    <li>Face mask: Multani mitti + rose water (2-3x/week)</li>
+                    <li>Sleep 7-8 hours</li>
+                </ul>
+                <p><strong>Optional Supplements (check with doctor):</strong> Omega-3, Multivitamin with zinc & Vitamin E</p>
+            </div>
+        </section>
 
-  <section id="motivation" class="card">
-    <h2>Need a Boost?</h2>
-    <button onclick="showQuote()">Show Motivation</button>
-    <p id="quoteBox"></p>
-  </section>
+        <section class="plan-section">
+            <h2>Progress Tracker</h2>
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-nutrition" style="width: 80%;">80% Nutrition Completed</div>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-workout" style="width: 60%;">60% Workout Completed</div>
+            </div>
+        </section>
 
-  <script src="script.js"></script>
+        <section class="plan-section">
+            <h2>Track Your Progress by Day</h2>
+            <div class="calendar" id="calendar">
+                <!-- Calendar Days will be populated dynamically -->
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Weight Gain & Fitness Plan</p>
+    </footer>
+
+    <script>
+        // Accordion functionality
+        var acc = document.getElementsByClassName("accordion");
+        for (var i = 0; i < acc.length; i++) {
+            acc[i].addEventListener("click", function() {
+                this.classList.toggle("active");
+                var panel = this.nextElementSibling;
+                if (panel.style.display === "block") {
+                    panel.style.display = "none";
+                } else {
+                    panel.style.display = "block";
+                }
+            });
+        }
+
+        // Calendar functionality
+        function generateCalendar() {
+            let calendarContainer = document.getElementById("calendar");
+            let daysInMonth = new Date(2025, 5, 0).getDate(); // May 2025
+            for (let i = 1; i <= daysInMonth; i++) {
+                let day = document.createElement("div");
+                day.textContent = i;
+                day.classList.add("day");
+                day.addEventListener("click", function() {
+                    this.classList.toggle("active-day");
+                });
+                calendarContainer.appendChild(day);
+            }
+        }
+
+        generateCalendar();
+    </script>
 </body>
 </html>
