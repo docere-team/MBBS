@@ -1,200 +1,202 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weight Gain, Muscle Building & Skin Care Plan</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            color: #333;
-        }
-        header {
-            background-color: #3498db;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-        main {
-            padding: 20px;
-        }
-        .plan-section {
-            margin-bottom: 30px;
-        }
-        .form-container {
-            background-color: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .form-container input, .form-container select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-        }
-        .reminder-section {
-            background-color: #3498db;
-            color: white;
-            padding: 10px;
-            margin-bottom: 20px;
-        }
-        .reminder-section input {
-            background-color: #2980b9;
-            color: white;
-        }
-        .week-summary {
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .calendar {
-            display: flex;
-            flex-wrap: wrap;
-        }
-        .calendar .day {
-            width: calc(100% / 7);
-            text-align: center;
-            padding: 10px;
-            margin: 5px;
-            background-color: #fff;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .calendar .day.active-day {
-            background-color: #3498db;
-            color: white;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Progress Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/firebase/app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/firebase/firestore.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/firebase/auth.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f7fa;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .form-container {
+      max-width: 500px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    input[type="number"],
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #macroChart {
+      max-width: 600px;
+      margin: 30px auto;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>Personalized Weight Gain, Muscle Building & Skin Care Plan</h1>
-    </header>
-    
-    <main>
-        <!-- New Section: Meal Macro Tracker -->
-        <section class="plan-section">
-            <h2>Track Your Meal Macros</h2>
-            <div class="form-container">
-                <h3>Breakfast</h3>
-                <label for="protein-breakfast">Protein (g):</label>
-                <input type="number" id="protein-breakfast" placeholder="Enter protein in grams">
-                <label for="carbs-breakfast">Carbs (g):</label>
-                <input type="number" id="carbs-breakfast" placeholder="Enter carbs in grams">
-                <label for="fats-breakfast">Fats (g):</label>
-                <input type="number" id="fats-breakfast" placeholder="Enter fats in grams">
-            </div>
-        </section>
 
-        <!-- New Section: Workout Tracker -->
-        <section class="plan-section">
-            <h2>Track Your Workout Progress</h2>
-            <div class="form-container">
-                <h3>Chest Day</h3>
-                <label for="sets-chest">Sets:</label>
-                <input type="number" id="sets-chest" placeholder="Enter number of sets">
-                <label for="reps-chest">Reps per Set:</label>
-                <input type="number" id="reps-chest" placeholder="Enter reps per set">
-            </div>
-        </section>
+  <h1>Progress Tracker</h1>
 
-        <!-- New Section: Skin Care Tracker -->
-        <section class="plan-section">
-            <h2>Track Your Skin Care Progress</h2>
-            <div class="form-container">
-                <h3>Skin Condition</h3>
-                <label for="dryness">Dryness:</label>
-                <select id="dryness">
-                    <option value="None">None</option>
-                    <option value="Mild">Mild</option>
-                    <option value="Severe">Severe</option>
-                </select>
-                <label for="acne">Acne:</label>
-                <select id="acne">
-                    <option value="None">None</option>
-                    <option value="Mild">Mild</option>
-                    <option value="Severe">Severe</option>
-                </select>
-                <label for="glow">Glow:</label>
-                <select id="glow">
-                    <option value="None">None</option>
-                    <option value="Mild">Mild</option>
-                    <option value="Radiant">Radiant</option>
-                </select>
-            </div>
-        </section>
+  <div class="form-container">
+    <form id="progressForm">
+      <h2>Enter Your Data</h2>
 
-        <!-- New Section: Weekly Summary -->
-        <section class="plan-section">
-            <h2>Weekly Summary Report</h2>
-            <div class="week-summary">
-                <h3>Your Weekly Progress</h3>
-                <p><strong>Meals Consumed:</strong> Track all the calories and macros you consumed this week</p>
-                <p><strong>Workout Achievements:</strong> Log your progress in reps, sets, and muscle growth</p>
-                <p><strong>Skin Care Improvements:</strong> Track the improvements in your skin health</p>
-            </div>
-        </section>
+      <!-- Meal Macros Input -->
+      <h3>Meal Macros</h3>
+      <input id="protein-breakfast" type="number" placeholder="Protein (g) Breakfast" required />
+      <input id="carbs-breakfast" type="number" placeholder="Carbs (g) Breakfast" required />
+      <input id="fats-breakfast" type="number" placeholder="Fats (g) Breakfast" required />
 
-        <!-- New Section: Reminder System -->
-        <section class="reminder-section">
-            <h2>Set Reminders for Daily Tasks</h2>
-            <label for="meal-reminder">Meal Reminder Time:</label>
-            <input type="time" id="meal-reminder">
-            <label for="workout-reminder">Workout Reminder Time:</label>
-            <input type="time" id="workout-reminder">
-            <label for="skincare-reminder">Skin Care Reminder Time:</label>
-            <input type="time" id="skincare-reminder">
-        </section>
-        
-        <!-- Calendar and Progress Tracker -->
-        <section class="plan-section">
-            <h2>Track Your Progress by Day</h2>
-            <div class="calendar" id="calendar">
-                <!-- Calendar Days will be populated dynamically -->
-            </div>
-        </section>
-    </main>
+      <input id="protein-lunch" type="number" placeholder="Protein (g) Lunch" required />
+      <input id="carbs-lunch" type="number" placeholder="Carbs (g) Lunch" required />
+      <input id="fats-lunch" type="number" placeholder="Fats (g) Lunch" required />
 
-    <footer>
-        <p>&copy; 2025 Weight Gain & Fitness Plan</p>
-    </footer>
+      <input id="protein-dinner" type="number" placeholder="Protein (g) Dinner" required />
+      <input id="carbs-dinner" type="number" placeholder="Carbs (g) Dinner" required />
+      <input id="fats-dinner" type="number" placeholder="Fats (g) Dinner" required />
 
-    <script>
-        // Dynamic Calendar for the Month
-        function generateCalendar() {
-            let calendarContainer = document.getElementById("calendar");
-            let daysInMonth = new Date(2025, 5, 0).getDate(); // May 2025
-            for (let i = 1; i <= daysInMonth; i++) {
-                let day = document.createElement("div");
-                day.textContent = i;
-                day.classList.add("day");
-                day.addEventListener("click", function() {
-                    this.classList.toggle("active-day");
-                });
-                calendarContainer.appendChild(day);
-            }
+      <!-- Workout Progress Input -->
+      <h3>Workout Progress</h3>
+      <input id="sets-chest" type="number" placeholder="Sets Chest" required />
+      <input id="reps-chest" type="number" placeholder="Reps Chest" required />
+      <input id="weight-chest" type="number" placeholder="Weight Chest (kg)" required />
+
+      <input id="sets-squats" type="number" placeholder="Sets Squats" required />
+      <input id="reps-squats" type="number" placeholder="Reps Squats" required />
+      <input id="weight-squats" type="number" placeholder="Weight Squats (kg)" required />
+
+      <!-- Skin Care Data Input -->
+      <h3>Skin Care Data</h3>
+      <input id="dryness" type="number" placeholder="Dryness Level (1-10)" required />
+      <input id="acne" type="number" placeholder="Acne Level (1-10)" required />
+      <input id="glow" type="number" placeholder="Glow Level (1-10)" required />
+
+      <button type="submit">Save Progress</button>
+    </form>
+  </div>
+
+  <!-- Chart.js for Progress Visualization -->
+  <canvas id="macroChart" width="400" height="200"></canvas>
+
+  <script>
+    // Firebase setup and initialize
+    const firebaseConfig = {
+      apiKey: "AIzaSyDP-oScHd8G5bMJqjZ15atgQjrwwjdffrg",
+      authDomain: "nation-bike.firebaseapp.com",
+      projectId: "nation-bike",
+      storageBucket: "nation-bike.appspot.com",
+      messagingSenderId: "25249080743",
+      appId: "1:25249080743:web:238adc1be73839fa740282"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    // Submit form data to backend API
+    async function submitData(event) {
+      event.preventDefault();
+      const userId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'guest'; // Get user ID from Firebase Authentication
+      const mealMacros = {
+        protein: {
+          breakfast: document.getElementById('protein-breakfast').value,
+          lunch: document.getElementById('protein-lunch').value,
+          dinner: document.getElementById('protein-dinner').value
+        },
+        carbs: {
+          breakfast: document.getElementById('carbs-breakfast').value,
+          lunch: document.getElementById('carbs-lunch').value,
+          dinner: document.getElementById('carbs-dinner').value
+        },
+        fats: {
+          breakfast: document.getElementById('fats-breakfast').value,
+          lunch: document.getElementById('fats-lunch').value,
+          dinner: document.getElementById('fats-dinner').value
         }
+      };
+      const workoutProgress = {
+        chest: {
+          sets: document.getElementById('sets-chest').value,
+          reps: document.getElementById('reps-chest').value,
+          weight: document.getElementById('weight-chest').value
+        },
+        squats: {
+          sets: document.getElementById('sets-squats').value,
+          reps: document.getElementById('reps-squats').value,
+          weight: document.getElementById('weight-squats').value
+        }
+      };
+      const skinCareData = {
+        dryness: document.getElementById('dryness').value,
+        acne: document.getElementById('acne').value,
+        glow: document.getElementById('glow').value
+      };
 
-        generateCalendar();
+      // Save the data in Firebase Firestore
+      await db.collection('userProgress').add({
+        userId,
+        mealMacros,
+        workoutProgress,
+        skinCareData,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
 
-        // Reminder System - Basic Functionality
-        document.getElementById('meal-reminder').addEventListener('change', function() {
-            alert("Meal Reminder set for: " + this.value);
-        });
+      alert("Progress saved successfully!");
+    }
 
-        document.getElementById('workout-reminder').addEventListener('change', function() {
-            alert("Workout Reminder set for: " + this.value);
-        });
+    document.getElementById('progressForm').addEventListener('submit', submitData);
 
-        document.getElementById('skincare-reminder').addEventListener('change', function() {
-            alert("Skin Care Reminder set for: " + this.value);
-        });
-    </script>
+    // Chart.js for visualizing macros over time
+    const ctx = document.getElementById('macroChart').getContext('2d');
+    const macroChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+          label: 'Protein (g)',
+          data: [30, 50, 40, 45, 60, 55, 65],
+          borderColor: 'rgba(75, 192, 192, 1)',
+          fill: false,
+        },
+        {
+          label: 'Carbs (g)',
+          data: [100, 120, 130, 110, 140, 150, 160],
+          borderColor: 'rgba(153, 102, 255, 1)',
+          fill: false,
+        },
+        {
+          label: 'Fats (g)',
+          data: [25, 30, 35, 28, 32, 38, 40],
+          borderColor: 'rgba(255, 159, 64, 1)',
+          fill: false,
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: { beginAtZero: true }
+        }
+      }
+    });
+  </script>
+
 </body>
 </html>
