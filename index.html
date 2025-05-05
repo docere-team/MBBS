@@ -50,42 +50,54 @@
       max-width: 600px;
       margin: 30px auto;
     }
+    /* Navigation Bar */
+    nav {
+      text-align: center;
+      margin: 20px 0;
+    }
+    nav a {
+      margin: 0 15px;
+      text-decoration: none;
+      color: #333;
+      font-weight: bold;
+    }
+    nav a:hover {
+      color: #4CAF50;
+    }
+    /* Sections for navigation */
+    .section {
+      display: none;
+    }
+    .active {
+      display: block;
+    }
   </style>
 </head>
 <body>
 
   <h1>Progress Tracker</h1>
 
+  <!-- Navigation Bar -->
+  <nav>
+    <a href="#" onclick="showSection('diet')">What to Eat/Drink</a>
+    <a href="#" onclick="showSection('chart')">The Diet Chart</a>
+    <a href="#" onclick="showSection('calendar')">Functional Calendar</a>
+  </nav>
+
+  <!-- Form Container to Enter Data -->
   <div class="form-container">
     <form id="progressForm">
       <h2>Enter Your Data</h2>
-
-      <!-- Meal Macros Input -->
-      <h3>Meal Macros</h3>
+      <!-- Meal Macros -->
       <input id="protein-breakfast" type="number" placeholder="Protein (g) Breakfast" required />
       <input id="carbs-breakfast" type="number" placeholder="Carbs (g) Breakfast" required />
       <input id="fats-breakfast" type="number" placeholder="Fats (g) Breakfast" required />
 
-      <input id="protein-lunch" type="number" placeholder="Protein (g) Lunch" required />
-      <input id="carbs-lunch" type="number" placeholder="Carbs (g) Lunch" required />
-      <input id="fats-lunch" type="number" placeholder="Fats (g) Lunch" required />
-
-      <input id="protein-dinner" type="number" placeholder="Protein (g) Dinner" required />
-      <input id="carbs-dinner" type="number" placeholder="Carbs (g) Dinner" required />
-      <input id="fats-dinner" type="number" placeholder="Fats (g) Dinner" required />
-
-      <!-- Workout Progress Input -->
-      <h3>Workout Progress</h3>
+      <!-- Workout Progress -->
       <input id="sets-chest" type="number" placeholder="Sets Chest" required />
       <input id="reps-chest" type="number" placeholder="Reps Chest" required />
-      <input id="weight-chest" type="number" placeholder="Weight Chest (kg)" required />
 
-      <input id="sets-squats" type="number" placeholder="Sets Squats" required />
-      <input id="reps-squats" type="number" placeholder="Reps Squats" required />
-      <input id="weight-squats" type="number" placeholder="Weight Squats (kg)" required />
-
-      <!-- Skin Care Data Input -->
-      <h3>Skin Care Data</h3>
+      <!-- Skin Care Data -->
       <input id="dryness" type="number" placeholder="Dryness Level (1-10)" required />
       <input id="acne" type="number" placeholder="Acne Level (1-10)" required />
       <input id="glow" type="number" placeholder="Glow Level (1-10)" required />
@@ -94,7 +106,23 @@
     </form>
   </div>
 
-  <!-- Chart.js for Progress Visualization -->
+  <!-- Sections for Navigation -->
+  <div id="diet" class="section">
+    <h2>What to Eat/Drink</h2>
+    <p>Content for food and drink recommendations goes here.</p>
+  </div>
+  
+  <div id="chart" class="section">
+    <h2>The Diet Chart</h2>
+    <p>Content for the diet chart goes here.</p>
+  </div>
+  
+  <div id="calendar" class="section">
+    <h2>Functional Calendar</h2>
+    <p>Content for the functional calendar goes here.</p>
+  </div>
+
+  <!-- Chart for Macros -->
   <canvas id="macroChart" width="400" height="200"></canvas>
 
   <script>
@@ -116,33 +144,13 @@
       event.preventDefault();
       const userId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'guest'; // Get user ID from Firebase Authentication
       const mealMacros = {
-        protein: {
-          breakfast: document.getElementById('protein-breakfast').value,
-          lunch: document.getElementById('protein-lunch').value,
-          dinner: document.getElementById('protein-dinner').value
-        },
-        carbs: {
-          breakfast: document.getElementById('carbs-breakfast').value,
-          lunch: document.getElementById('carbs-lunch').value,
-          dinner: document.getElementById('carbs-dinner').value
-        },
-        fats: {
-          breakfast: document.getElementById('fats-breakfast').value,
-          lunch: document.getElementById('fats-lunch').value,
-          dinner: document.getElementById('fats-dinner').value
-        }
+        protein: document.getElementById('protein-breakfast').value,
+        carbs: document.getElementById('carbs-breakfast').value,
+        fats: document.getElementById('fats-breakfast').value
       };
       const workoutProgress = {
-        chest: {
-          sets: document.getElementById('sets-chest').value,
-          reps: document.getElementById('reps-chest').value,
-          weight: document.getElementById('weight-chest').value
-        },
-        squats: {
-          sets: document.getElementById('sets-squats').value,
-          reps: document.getElementById('reps-squats').value,
-          weight: document.getElementById('weight-squats').value
-        }
+        sets: document.getElementById('sets-chest').value,
+        reps: document.getElementById('reps-chest').value
       };
       const skinCareData = {
         dryness: document.getElementById('dryness').value,
@@ -150,21 +158,24 @@
         glow: document.getElementById('glow').value
       };
 
-      // Save the data in Firebase Firestore
-      await db.collection('userProgress').add({
-        userId,
-        mealMacros,
-        workoutProgress,
-        skinCareData,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      const response = await fetch('/saveUserProgress', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId, mealMacros, workoutProgress, skinCareData })
       });
 
-      alert("Progress saved successfully!");
+      if (response.ok) {
+        alert("Data saved successfully!");
+      } else {
+        alert("Error saving data.");
+      }
     }
 
     document.getElementById('progressForm').addEventListener('submit', submitData);
 
-    // Chart.js for visualizing macros over time
+    // Chart.js code for data visualization (macro tracking)
     const ctx = document.getElementById('macroChart').getContext('2d');
     const macroChart = new Chart(ctx, {
       type: 'line',
@@ -196,6 +207,18 @@
         }
       }
     });
+
+    // Function to show sections based on navigation
+    function showSection(sectionId) {
+      // Hide all sections
+      const sections = document.querySelectorAll('.section');
+      sections.forEach((section) => {
+        section.classList.remove('active');
+      });
+
+      // Show the clicked section
+      document.getElementById(sectionId).classList.add('active');
+    }
   </script>
 
 </body>
