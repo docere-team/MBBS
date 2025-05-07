@@ -28,7 +28,7 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 
-    input, select {
+    input, select, button {
       width: 100%;
       padding: 0.75rem;
       margin-bottom: 1rem;
@@ -37,13 +37,9 @@
     }
 
     button {
-      padding: 0.6rem 1.2rem;
       background-color: #0077b6;
       color: white;
-      border: none;
-      border-radius: 5px;
       cursor: pointer;
-      margin-right: 5px;
     }
 
     .flashcard {
@@ -60,6 +56,12 @@
     .quiz-section input {
       margin-top: 1rem;
     }
+
+    img {
+      max-width: 100%;
+      margin-top: 1rem;
+    }
+
   </style>
 </head>
 <body>
@@ -70,6 +72,7 @@
     <input type="text" id="question" placeholder="Enter question">
     <input type="text" id="answer" placeholder="Enter answer">
     <input type="text" id="subject" placeholder="Enter subject (e.g. Anatomy)">
+    <input type="file" id="flashcardImage" accept="image/*,application/pdf">
     <button onclick="addFlashcard()">Add</button>
   </div>
 
@@ -109,14 +112,44 @@
       const question = document.getElementById("question").value.trim();
       const answer = document.getElementById("answer").value.trim();
       const subject = document.getElementById("subject").value.trim();
+      const fileInput = document.getElementById("flashcardImage");
+      const file = fileInput.files[0];
+
       if (!question || !answer || !subject) return alert("All fields required");
-      flashcards.push({ question, answer, subject });
-      saveToLocalStorage();
+
+      let imageUrl = null;
+      if (file) {
+        // Check if the file is an image or a document
+        if (file.type.startsWith('image')) {
+          const reader = new FileReader();
+          reader.onload = function(event) {
+            imageUrl = event.target.result;
+            flashcards.push({ question, answer, subject, imageUrl });
+            saveToLocalStorage();
+            renderCards();
+            showNextQuizCard();
+          };
+          reader.readAsDataURL(file); // This handles image files
+        } else if (file.type === 'application/pdf') {
+          // If it's a document (PDF), just save the file URL temporarily
+          imageUrl = URL.createObjectURL(file);
+          flashcards.push({ question, answer, subject, imageUrl });
+          saveToLocalStorage();
+          renderCards();
+          showNextQuizCard();
+        }
+      } else {
+        flashcards.push({ question, answer, subject });
+        saveToLocalStorage();
+        renderCards();
+        showNextQuizCard();
+      }
+
+      // Reset form fields after submission
       document.getElementById("question").value = "";
       document.getElementById("answer").value = "";
       document.getElementById("subject").value = "";
-      renderCards();
-      showNextQuizCard();
+      document.getElementById("flashcardImage").value = "";
     }
 
     function deleteFlashcard(index) {
@@ -150,6 +183,16 @@
           const div = document.createElement("div");
           div.className = "flashcard";
           div.innerHTML = `<strong>${card.question}</strong><br><em>Subject: ${card.subject}</em><br><em>Click to see answer</em>`;
+          
+          // Display image or document
+          if (card.imageUrl) {
+            if (card.imageUrl.endsWith('.pdf')) {
+              div.innerHTML += `<a href="${card.imageUrl}" target="_blank">View PDF</a>`;
+            } else {
+              div.innerHTML += `<img src="${card.imageUrl}" alt="Flashcard Image">`;
+            }
+          }
+
           div.onclick = () => alert(`Answer: ${card.answer}`);
 
           const actions = document.createElement("div");
