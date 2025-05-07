@@ -62,6 +62,15 @@
       margin-top: 1rem;
     }
 
+    .quiz-feedback {
+      margin-top: 1rem;
+    }
+
+    .timer {
+      font-size: 1.2rem;
+      color: red;
+    }
+
   </style>
 </head>
 <body>
@@ -89,13 +98,18 @@
     <h3>Quiz Mode</h3>
     <div id="quizCard"></div>
     <input type="text" id="userAnswer" placeholder="Your answer">
-    <button onclick="checkAnswer()">Check</button>
-    <p id="quizFeedback"></p>
+    <button onclick="checkAnswer()">Check Answer</button>
+    <p id="quizFeedback" class="quiz-feedback"></p>
+    <p id="score">Score: 0</p>
+    <p id="timer" class="timer"></p>
   </div>
 
   <script>
     let flashcards = [];
     let currentQuizIndex = 0;
+    let score = 0;
+    let timerInterval;
+    let timeRemaining = 10;
 
     function saveToLocalStorage() {
       localStorage.setItem("mbbsFlashcards", JSON.stringify(flashcards));
@@ -119,7 +133,6 @@
 
       let imageUrl = null;
       if (file) {
-        // Check if the file is an image or a document
         if (file.type.startsWith('image')) {
           const reader = new FileReader();
           reader.onload = function(event) {
@@ -129,9 +142,8 @@
             renderCards();
             showNextQuizCard();
           };
-          reader.readAsDataURL(file); // This handles image files
+          reader.readAsDataURL(file);
         } else if (file.type === 'application/pdf') {
-          // If it's a document (PDF), just save the file URL temporarily
           imageUrl = URL.createObjectURL(file);
           flashcards.push({ question, answer, subject, imageUrl });
           saveToLocalStorage();
@@ -145,7 +157,6 @@
         showNextQuizCard();
       }
 
-      // Reset form fields after submission
       document.getElementById("question").value = "";
       document.getElementById("answer").value = "";
       document.getElementById("subject").value = "";
@@ -183,8 +194,7 @@
           const div = document.createElement("div");
           div.className = "flashcard";
           div.innerHTML = `<strong>${card.question}</strong><br><em>Subject: ${card.subject}</em><br><em>Click to see answer</em>`;
-          
-          // Display image or document
+
           if (card.imageUrl) {
             if (card.imageUrl.endsWith('.pdf')) {
               div.innerHTML += `<a href="${card.imageUrl}" target="_blank">View PDF</a>`;
@@ -233,23 +243,49 @@
 
     function showNextQuizCard() {
       if (flashcards.length === 0) return;
+      currentQuizIndex = Math.floor(Math.random() * flashcards.length);
       const card = flashcards[currentQuizIndex];
       document.getElementById("quizCard").innerText = card.question + ` (Subject: ${card.subject})`;
       document.getElementById("userAnswer").value = "";
       document.getElementById("quizFeedback").innerText = "";
+      startTimer();
     }
 
     function checkAnswer() {
       const userAns = document.getElementById("userAnswer").value.trim().toLowerCase();
       const correctAns = flashcards[currentQuizIndex].answer.toLowerCase();
       const feedback = document.getElementById("quizFeedback");
+
       if (userAns === correctAns) {
+        score++;
         feedback.innerText = "Correct!";
       } else {
         feedback.innerText = `Wrong. Correct answer is: ${flashcards[currentQuizIndex].answer}`;
       }
-      currentQuizIndex = (currentQuizIndex + 1) % flashcards.length;
-      setTimeout(showNextQuizCard, 2000);
+
+      document.getElementById("score").innerText = `Score: ${score}`;
+
+      setTimeout(() => {
+        showNextQuizCard();
+      }, 2000);
+    }
+
+    function startTimer() {
+      timeRemaining = 10; // Reset timer
+      document.getElementById("timer").innerText = `Time remaining: ${timeRemaining}s`;
+
+      if (timerInterval) clearInterval(timerInterval);
+
+      timerInterval = setInterval(() => {
+        if (timeRemaining <= 0) {
+          clearInterval(timerInterval);
+          document.getElementById("quizFeedback").innerText = "Time's up! Correct answer: " + flashcards[currentQuizIndex].answer;
+          setTimeout(showNextQuizCard, 2000);
+        } else {
+          timeRemaining--;
+          document.getElementById("timer").innerText = `Time remaining: ${timeRemaining}s`;
+        }
+      }, 1000);
     }
 
     document.addEventListener("DOMContentLoaded", () => {
