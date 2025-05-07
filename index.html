@@ -61,9 +61,10 @@
       margin-top: 1rem;
     }
 
-    #timer {
-      font-weight: bold;
-      margin-top: 1rem;
+    img, embed {
+      max-width: 100%;
+      margin-top: 0.5rem;
+      border: 1px solid #ccc;
     }
   </style>
 </head>
@@ -75,6 +76,7 @@
     <input type="text" id="question" placeholder="Enter question">
     <input type="text" id="answer" placeholder="Enter answer">
     <input type="text" id="subject" placeholder="Enter subject (e.g. Anatomy)">
+    <input type="file" id="mediaFile" accept="image/*,application/pdf">
     <button onclick="addFlashcard()">Add</button>
   </div>
 
@@ -89,8 +91,8 @@
 
   <div class="quiz-section">
     <h3>Quiz Mode</h3>
-    <label for="quizSubject">Choose Subject:</label>
-    <select id="quizSubject" onchange="resetQuiz()">
+    <label for="quizSubject">Select Subject:</label>
+    <select id="quizSubject" onchange="startQuiz()">
       <option value="">All</option>
     </select>
     <div id="quizCard"></div>
@@ -98,15 +100,15 @@
     <button onclick="checkAnswer()">Check</button>
     <button onclick="skipQuestion()">Skip</button>
     <p id="quizFeedback"></p>
-    <p id="timer">Time left: 60s</p>
+    <p id="quizTimer">Time left: 60s</p>
   </div>
 
   <script>
     let flashcards = [];
     let currentQuizIndex = 0;
-    let quizCards = [];
-    let timer;
+    let quizTimer;
     let timeLeft = 60;
+    let quizFiltered = [];
 
     function saveToLocalStorage() {
       localStorage.setItem("mbbsFlashcards", JSON.stringify(flashcards));
@@ -114,24 +116,39 @@
 
     function loadFromLocalStorage() {
       const data = localStorage.getItem("mbbsFlashcards");
-      if (data) {
-        flashcards = JSON.parse(data);
-      }
+      if (data) flashcards = JSON.parse(data);
     }
 
     function addFlashcard() {
       const question = document.getElementById("question").value.trim();
       const answer = document.getElementById("answer").value.trim();
       const subject = document.getElementById("subject").value.trim();
+      const mediaFile = document.getElementById("mediaFile").files[0];
+
       if (!question || !answer || !subject) return alert("All fields required");
-      flashcards.push({ question, answer, subject });
+
+      if (mediaFile) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          flashcards.push({ question, answer, subject, media: reader.result, type: mediaFile.type });
+          finalizeAdd();
+        };
+        reader.readAsDataURL(mediaFile);
+      } else {
+        flashcards.push({ question, answer, subject });
+        finalizeAdd();
+      }
+    }
+
+    function finalizeAdd() {
       saveToLocalStorage();
       document.getElementById("question").value = "";
       document.getElementById("answer").value = "";
       document.getElementById("subject").value = "";
+      document.getElementById("mediaFile").value = "";
       renderCards();
-      populateSubjectDropdowns();
-      resetQuiz();
+      populateQuizSubjects();
+      startQuiz();
     }
 
     function deleteFlashcard(index) {
@@ -139,8 +156,8 @@
         flashcards.splice(index, 1);
         saveToLocalStorage();
         renderCards();
-        populateSubjectDropdowns();
-        resetQuiz();
+        populateQuizSubjects();
+        startQuiz();
       }
     }
 
@@ -149,11 +166,13 @@
       const newA = prompt("Edit Answer:", flashcards[index].answer);
       const newS = prompt("Edit Subject:", flashcards[index].subject);
       if (newQ !== null && newA !== null && newS !== null) {
-        flashcards[index] = { question: newQ.trim(), answer: newA.trim(), subject: newS.trim() };
+        flashcards[index].question = newQ.trim();
+        flashcards[index].answer = newA.trim();
+        flashcards[index].subject = newS.trim();
         saveToLocalStorage();
         renderCards();
-        populateSubjectDropdowns();
-        resetQuiz();
+        populateQuizSubjects();
+        startQuiz();
       }
     }
 
@@ -169,6 +188,14 @@
           const div = document.createElement("div");
           div.className = "flashcard";
           div.innerHTML = `<strong>${card.question}</strong><br><em>Subject: ${card.subject}</em><br><em>Click to see answer</em>`;
+          if (card.media) {
+            if (card.type.includes("pdf")) {
+              div.innerHTML += `<br><embed src="${card.media}" type="application/pdf" width="100%" height="200px"/>`;
+            } else {
+              div.innerHTML += `<br><img src="${card.media}" alt="media" />`;
+            }
+          }
+
           div.onclick = () => alert(`Answer: ${card.answer}`);
 
           const actions = document.createElement("div");
@@ -194,86 +221,104 @@
           container.appendChild(div);
         }
       });
-    }
 
-    function populateSubjectDropdowns() {
+      const dropdown = document.getElementById("filterSubject");
       const quizDropdown = document.getElementById("quizSubject");
-      const filterDropdown = document.getElementById("filterSubject");
-      const subjects = [...new Set(flashcards.map(c => c.subject))];
+      updateDropdown(dropdown, uniqueSubjects);
+      updateDropdown(quizDropdown, uniqueSubjects);
+    }
 
-      [quizDropdown, filterDropdown].forEach(dropdown => {
-        const selected = dropdown.value;
-        dropdown.innerHTML = `<option value="">All</option>`;
-        subjects.forEach(subject => {
-          const option = document.createElement("option");
-          option.value = subject;
-          option.textContent = subject;
-          if (subject === selected) option.selected = true;
-          dropdown.appendChild(option);
-        });
+    function updateDropdown(dropdown, subjects) {
+      const current = dropdown.value;
+      dropdown.innerHTML = `<option value="">All</option>`;
+      subjects.forEach(subject => {
+        const opt = document.createElement("option");
+        opt.value = subject;
+        opt.textContent = subject;
+        dropdown.appendChild(opt);
       });
+      dropdown.value = current;
     }
 
-    function startTimer() {
-      clearInterval(timer);
-      timeLeft = 60;
-      document.getElementById("timer").innerText = `Time left: ${timeLeft}s`;
-      timer = setInterval(() => {
-        timeLeft--;
-        document.getElementById("timer").innerText = `Time left: ${timeLeft}s`;
-        if (timeLeft <= 0) {
-          clearInterval(timer);
-          skipQuestion();
-        }
-      }, 1000);
-    }
-
-    function resetQuiz() {
-      const selectedSubject = document.getElementById("quizSubject").value;
-      quizCards = selectedSubject
-        ? flashcards.filter(c => c.subject === selectedSubject)
-        : [...flashcards];
+    function startQuiz() {
+      const selectedSubject = document.getElementById("quizSubject").value.toLowerCase();
+      quizFiltered = flashcards.filter(card => !selectedSubject || card.subject.toLowerCase() === selectedSubject);
       currentQuizIndex = 0;
-      showNextQuizCard();
+      if (quizFiltered.length > 0) {
+        showNextQuizCard();
+        resetTimer();
+      } else {
+        document.getElementById("quizCard").innerText = "No cards available for this subject.";
+        clearInterval(quizTimer);
+      }
     }
 
     function showNextQuizCard() {
-      if (quizCards.length === 0) {
-        document.getElementById("quizCard").innerText = "No flashcards available for this subject.";
-        return;
+      if (quizFiltered.length === 0) return;
+      const card = quizFiltered[currentQuizIndex];
+      let html = `<strong>${card.question}</strong> (Subject: ${card.subject})`;
+      if (card.media) {
+        if (card.type.includes("pdf")) {
+          html += `<br><embed src="${card.media}" type="application/pdf" width="100%" height="200px"/>`;
+        } else {
+          html += `<br><img src="${card.media}" alt="media"/>`;
+        }
       }
-      const card = quizCards[currentQuizIndex];
-      document.getElementById("quizCard").innerText = `${card.question} (Subject: ${card.subject})`;
+      document.getElementById("quizCard").innerHTML = html;
       document.getElementById("userAnswer").value = "";
       document.getElementById("quizFeedback").innerText = "";
-      startTimer();
     }
 
     function checkAnswer() {
-      clearInterval(timer);
       const userAns = document.getElementById("userAnswer").value.trim().toLowerCase();
-      const correctAns = quizCards[currentQuizIndex].answer.toLowerCase();
+      const correctAns = quizFiltered[currentQuizIndex].answer.toLowerCase();
       const feedback = document.getElementById("quizFeedback");
       if (userAns === correctAns) {
         feedback.innerText = "Correct!";
       } else {
-        feedback.innerText = `Wrong. Correct answer is: ${quizCards[currentQuizIndex].answer}`;
+        feedback.innerText = `Wrong. Correct answer is: ${quizFiltered[currentQuizIndex].answer}`;
       }
-      currentQuizIndex = (currentQuizIndex + 1) % quizCards.length;
-      setTimeout(showNextQuizCard, 2000);
+      currentQuizIndex = (currentQuizIndex + 1) % quizFiltered.length;
+      setTimeout(() => {
+        showNextQuizCard();
+        resetTimer();
+      }, 2000);
     }
 
     function skipQuestion() {
-      clearInterval(timer);
-      currentQuizIndex = (currentQuizIndex + 1) % quizCards.length;
+      currentQuizIndex = (currentQuizIndex + 1) % quizFiltered.length;
       showNextQuizCard();
+      resetTimer();
+    }
+
+    function resetTimer() {
+      clearInterval(quizTimer);
+      timeLeft = 60;
+      document.getElementById("quizTimer").innerText = `Time left: ${timeLeft}s`;
+      quizTimer = setInterval(() => {
+        timeLeft--;
+        document.getElementById("quizTimer").innerText = `Time left: ${timeLeft}s`;
+        if (timeLeft <= 0) {
+          clearInterval(quizTimer);
+          document.getElementById("quizFeedback").innerText = "Time's up!";
+          setTimeout(() => {
+            skipQuestion();
+          }, 1000);
+        }
+      }, 1000);
+    }
+
+    function populateQuizSubjects() {
+      const quizDropdown = document.getElementById("quizSubject");
+      const subjects = new Set(flashcards.map(card => card.subject));
+      updateDropdown(quizDropdown, subjects);
     }
 
     document.addEventListener("DOMContentLoaded", () => {
       loadFromLocalStorage();
       renderCards();
-      populateSubjectDropdowns();
-      resetQuiz();
+      populateQuizSubjects();
+      startQuiz();
     });
   </script>
 </body>
